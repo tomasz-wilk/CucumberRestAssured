@@ -19,8 +19,14 @@ public class DataTemplates {
         return createComment(postId, true, true, true);
     }
 
-    public CommentDTO createComment() {
-        return createComment(null, true, true, true);
+    public CommentDTO updateComment(CommentDTO commentDTO, Boolean nameAvailable, Boolean emailAvailable,
+                                    Boolean bodyAvailable) {
+        return commentDTO.toBuilder()
+                .postId(commentDTO.postId())
+                .name(nameAvailable ? DataGenerator.generateRandomName() : commentDTO.name())
+                .email(emailAvailable ? DataGenerator.generateRandomEmailAddress() : commentDTO.email())
+                .body(bodyAvailable ? DataGenerator.generateRandomBody() : commentDTO.body())
+                .build();
     }
 
     public PostDTO createPost(Integer userId, Boolean titleAvailable, Boolean bodyAvailable) {
