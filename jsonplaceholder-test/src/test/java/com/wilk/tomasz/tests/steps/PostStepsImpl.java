@@ -20,9 +20,10 @@ public class PostStepsImpl extends BaseSteps {
     @Given("there is existing post in application")
     public void getExistingPost() {
         var postId = DataGenerator.getExistingPostId();
+        var response = postEndpoint.getPost(postId);
         sharedContext.setPostId(postId);
-        sharedContext.setResponse(postEndpoint.getPost(postId));
-        assertThat(sharedContext.getResponse().statusCode()).isEqualTo(HttpStatus.SC_OK);
+        sharedContext.setPost(response.as(PostDTO.class));
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.SC_OK);
     }
 
     @Given("there is not existing post in application")
@@ -39,6 +40,13 @@ public class PostStepsImpl extends BaseSteps {
         var post = templates.createPost(userId, titleAvailable, bodyAvailable);
         sharedContext.setResponse(postEndpoint.addPost(post));
         sharedContext.setPost(post);
+    }
+
+    @When("^user updates post with present fields: 'title' = (.+), 'body' = (.+)$")
+    public void updatePost(boolean titleAvailable, boolean bodyAvailable) {
+        var newPost = templates.updatePost(sharedContext.getPost(), titleAvailable, bodyAvailable);
+        sharedContext.setResponse(postEndpoint.updatePost(sharedContext.getPostId(), newPost));
+        sharedContext.setPost(newPost);
     }
 
     @When("user removes post from application")
@@ -60,10 +68,19 @@ public class PostStepsImpl extends BaseSteps {
         assertThat(actPost).isEqualTo(expPost);
     }
 
-    @When("list of comments is returned not empty")
+    @Then("list of comments is returned not empty")
     public void verifyListOfCommentsNotEmpty() {
         assertThat(sharedContext.getResponse().statusCode()).isEqualTo(HttpStatus.SC_OK);
         var comments = sharedContext.getResponse().as(CommentDTO[].class);
         assertThat(comments).isNotEmpty();
+    }
+
+    @Then("post is updated with new values")
+    public void verifyPostUpdatedWithNewValues() {
+        var actPost = sharedContext.getResponse().as(PostDTO.class);
+        var expPost = sharedContext.getPost().toBuilder()
+                .id(sharedContext.getPostId())
+                .build();
+        assertThat(actPost).isEqualTo(expPost);
     }
 }

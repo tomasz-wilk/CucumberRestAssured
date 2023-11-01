@@ -37,6 +37,16 @@ public class PostEndpoint extends BaseEndpoint {
                 .response();
     }
 
+    public Response updatePost(int postId, PostDTO post) {
+        return given()
+                .body(post)
+                .put(POST_PATH, postId)
+                .then()
+                .log().all()
+                .extract()
+                .response();
+    }
+
     public Response deletePost(int id) {
         return given()
                 .delete(POST_PATH, id)

@@ -12,6 +12,10 @@ public class DataGenerator {
     private static final int COMMENT_COLLECTION_SIZE = 500;
     private static final Random random = new Random();
 
+    public static String generateRandomTitle() {
+        return RandomStringUtils.randomAlphabetic(30);
+    }
+
     public static String generateRandomName() {
         return RandomStringUtils.randomAlphabetic(10);
     }

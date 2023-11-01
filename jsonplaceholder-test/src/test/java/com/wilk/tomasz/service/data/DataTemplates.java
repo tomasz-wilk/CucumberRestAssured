@@ -32,8 +32,16 @@ public class DataTemplates {
     public PostDTO createPost(Integer userId, Boolean titleAvailable, Boolean bodyAvailable) {
         return PostDTO.builder()
                 .userId(userId)
-                .title(titleAvailable ? DataGenerator.generateRandomName() : null)
+                .title(titleAvailable ? DataGenerator.generateRandomTitle() : null)
                 .body(bodyAvailable ? DataGenerator.generateRandomBody() : null)
+                .build();
+    }
+
+    public PostDTO updatePost(PostDTO postDTO, Boolean titleAvailable, Boolean bodyAvailable) {
+        return PostDTO.builder()
+                .userId(postDTO.userId())
+                .title(titleAvailable ? DataGenerator.generateRandomTitle() : postDTO.title())
+                .body(bodyAvailable ? DataGenerator.generateRandomBody() : postDTO.body())
                 .build();
     }
 }
