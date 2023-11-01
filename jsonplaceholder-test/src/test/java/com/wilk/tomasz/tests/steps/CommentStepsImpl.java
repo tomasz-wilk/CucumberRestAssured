@@ -8,7 +8,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.http.HttpStatus;
-import org.assertj.core.api.SoftAssertions;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,13 +39,8 @@ public class CommentStepsImpl extends BaseSteps {
 
     @When("^user updates comment with present fields: 'name' = (.+), 'email' = (.+), 'body' = (.+)$")
     public void updateComment(boolean nameAvailable, boolean emailAvailable, boolean bodyAvailable) {
-        var oldComment = sharedContext.getComment();
-        var newComment = oldComment.toBuilder()
-                .postId(oldComment.postId())
-                .name(nameAvailable ? DataGenerator.generateRandomName() : oldComment.name())
-                .email(emailAvailable ? DataGenerator.generateRandomEmailAddress() : oldComment.email())
-                .body(bodyAvailable ? DataGenerator.generateRandomBody() : oldComment.body())
-                .build();
+        var newComment = templates.updateComment(sharedContext.getComment(), nameAvailable, emailAvailable,
+                bodyAvailable);
         sharedContext.setResponse(commentEndpoint.updateComment(sharedContext.getCommentId(), newComment));
         sharedContext.setComment(newComment);
     }
