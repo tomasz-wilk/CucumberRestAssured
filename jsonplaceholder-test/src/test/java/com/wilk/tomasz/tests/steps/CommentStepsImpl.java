@@ -24,17 +24,10 @@ public class CommentStepsImpl extends BaseSteps {
     @Given("there is existing comment in application")
     public void getExistingComment() {
         var commentId = DataGenerator.getExistingCommentId();
+        var response = commentEndpoint.getComment(commentId);
         sharedContext.setCommentId(commentId);
-        sharedContext.setResponse(commentEndpoint.getComment(commentId));
-        assertThat(sharedContext.getResponse().statusCode()).isEqualTo(HttpStatus.SC_OK);
-    }
-
-    @Given("there is not existing comment in application")
-    public void getNotExistingComment() {
-        var commentId = DataGenerator.getNotExistingCommentId();
-        sharedContext.setCommentId(commentId);
-        sharedContext.setResponse(commentEndpoint.getComment(commentId));
-        assertThat(sharedContext.getResponse().statusCode()).isEqualTo(HttpStatus.SC_OK);
+        sharedContext.setComment(response.as(CommentDTO.class));
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.SC_OK);
     }
 
     @When("^user adds comment with present fields: 'name' = (.+), 'email' = (.+), 'body' = (.+)$")
@@ -45,18 +38,24 @@ public class CommentStepsImpl extends BaseSteps {
         sharedContext.setComment(comment);
     }
 
+    @When("^user updates comment with present fields: 'name' = (.+), 'email' = (.+), 'body' = (.+)$")
+    public void updateComment(boolean nameAvailable, boolean emailAvailable, boolean bodyAvailable) {
+        var oldComment = sharedContext.getComment();
+        var newComment = oldComment.toBuilder()
+                .postId(oldComment.postId())
+                .name(nameAvailable ? DataGenerator.generateRandomName() : oldComment.name())
+                .email(emailAvailable ? DataGenerator.generateRandomEmailAddress() : oldComment.email())
+                .body(bodyAvailable ? DataGenerator.generateRandomBody() : oldComment.body())
+                .build();
+        sharedContext.setResponse(commentEndpoint.updateComment(sharedContext.getCommentId(), newComment));
+        sharedContext.setComment(newComment);
+    }
+
     @When("user updates comment with new values")
     public void updateExistingComment() {
         var postId = sharedContext.getPostId();
         var comment = templates.createComment(postId);
         sharedContext.setResponse(commentEndpoint.updateComment(sharedContext.getCommentId(), comment));
-        sharedContext.setComment(comment);
-    }
-
-    @When("user updates comment with id = {int} with new values")
-    public void updateCommentWithNewValues(int commentId) {
-        var comment = templates.createComment();
-        sharedContext.setResponse(commentEndpoint.updateComment(commentId, comment));
         sharedContext.setComment(comment);
     }
 
